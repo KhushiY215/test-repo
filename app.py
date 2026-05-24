@@ -1,22 +1,25 @@
 import sqlite3
-from flask import request
+import os
+import sqlite3
+import logging
+from typing import Optional, Tuple
 
-def search_users():
-    conn = sqlite3.connect("users.db")
-    cur = conn.cursor()
+logger = logging.getLogger(__name__)
 
-    username = request.args.get("username")
 
-    query = f"""
-        SELECT id, username, email
-        FROM users
-        WHERE username = '{username}'
-    """
-
-    print("Executing:", query)
-
-    cur.execute(query)
-    results = cur.fetchall()
-
-    conn.close()
-    return results
+def login(username: str, password: str) -> Optional[User]:
+    db_path = os.getenv("DATABASE_PATH", "users.db")
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT id, name, password_hash FROM users WHERE name = ?",
+                (username,),
+            )
+            row = cur.fetchone()
+            if row and verify_password(password, row["password_hash"]):
+                return User(id=row["id"], name=row["name"])
+    except sqlite3.Error as e:
+        logger.exception("Database error during login")
+    return None
