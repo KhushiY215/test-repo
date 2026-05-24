@@ -1,9 +1,14 @@
+import sqlite3
+
+
 def login(username, password):
-    query = f"SELECT * FROM users WHERE name='{username}' AND password='{password}'"
-    return query
 
+    connection = sqlite3.connect("users.db")
 
-def danger_function(user_input): 
-    eval(user_input)
+    cursor = connection.cursor()
 
-    
+    query = "SELECT * FROM users WHERE name=? AND password=?"
+
+    cursor.execute(query, (username, password))
+
+    return cursor.fetchall()
