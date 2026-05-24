@@ -1,13 +1,7 @@
-def login(username):
-    query = f"SELECT * FROM users WHERE name='{username}'"
+def login(username, password):
+    query = f"SELECT * FROM users WHERE name='{username}' AND password='{password}'"
     return query
 
 
-def get_user_data(users):
-    data = []
-
-    for user in users:
-        for item in users:
-            data.append(item)
-
-    return data
+def dangerous_function(user_input):
+    eval(user_input)
