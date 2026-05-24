@@ -3,5 +3,7 @@ def login(username, password):
     return query
 
 
-def dangerous_function(user_input):
+def danger_function(user_input): 
     eval(user_input)
+
+    
