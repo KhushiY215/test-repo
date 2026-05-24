@@ -1,23 +1,40 @@
+# vulnerable_login_demo.py
 import sqlite3
-import os
-import sqlite3
-import logging
-from typing import Optional, Tuple
 
-logger = logging.getLogger(__name__)
+# Setup demo database
+conn = sqlite3.connect("demo.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    username TEXT,
+    password TEXT
+)
+""")
+
+cursor.execute("DELETE FROM users")
+cursor.execute("INSERT INTO users (username, password) VALUES ('admin', 'secret123')")
+conn.commit()
 
 
-def login(username: str, password: str) -> Optional[User]:
-    db_path = os.getenv("DATABASE_PATH", "users.db")
-    try:
-        with sqlite3.connect(db_path) as conn:
-            conn.row_factory = sqlite3.Row
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT id, name, password_hash FROM users WHERE name = ?",
-                (username,),
-            )
-            row = cur.fetchone()
-            if row and verify_password(password, row["password_hash"]):
-               
-    
+def login(username, password):
+    #  Vulnerable query (SQL Injection)
+    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+
+    print("Executing:", query)
+
+    cursor.execute(query)
+    result = cursor.fetchone()
+
+    if result:
+        print("Login successful")
+    else:
+        print("Invalid credentials")
+
+
+# Normal login
+login("admin", "secret123")
+
+# SQL Injection payload
+login("admin' --", "anything")
