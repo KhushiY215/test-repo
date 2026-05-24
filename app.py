@@ -19,5 +19,5 @@ def login(username: str, password: str) -> Optional[User]:
             )
             row = cur.fetchone()
             if row and verify_password(password, row["password_hash"]):
-                return User(id=row["id"], name=row["name"])
+               
     
